@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Toolkit de Engenharia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #141110;
+    --panel: #1c1815;
+    --panel-2: #221c19;
+    --line: #35302c;
+    --line-strong: #4a423c;
+    --red: #d5262c;
+    --red-bright: #ff3b3b;
+    --red-dim: #7a1418;
+    --text: #f1ece6;
+    --text-dim: #a89e94;
+    --text-faint: #6f665f;
+    --mono: 'IBM Plex Mono', monospace;
+    --disp: 'Oswald', sans-serif;
+  }
+  :root[data-theme="light"] {
+    --bg: #f2ede6;
+    --panel: #ffffff;
+    --panel-2: #f7f2ec;
+    --line: #dcd3c8;
+    --line-strong: #c9bcac;
+    --red: #c21c22;
+    --red-bright: #e02a2a;
+    --red-dim: #f0c9c9;
+    --text: #201a16;
+    --text-dim: #6b5f54;
+    --text-faint: #9c9086;
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      --bg: #f2ede6;
+      --panel: #ffffff;
+      --panel-2: #f7f2ec;
+      --line: #dcd3c8;
+      --line-strong: #c9bcac;
+      --red: #c21c22;
+      --red-bright: #e02a2a;
+      --red-dim: #f0c9c9;
+      --text: #201a16;
+      --text-dim: #6b5f54;
+      --text-faint: #9c9086;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 0 0 64px 0;
+  }
+  .rail {
+    height: 6px;
+    width: 100%;
+    background: repeating-linear-gradient(45deg, var(--red) 0 10px, var(--red-dim) 10px 20px);
+    flex-shrink: 0;
+  }
+  header {
+    padding: 28px 24px 18px;
+    border-bottom: 1px solid var(--line);
+  }
+  .brand-row {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .brand-mark {
+    font-family: var(--disp);
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    color: var(--red-bright);
+    border: 1px solid var(--red);
+    padding: 3px 8px;
+    border-radius: 3px;
+  }
+  h1 {
+    font-family: var(--disp);
+    font-weight: 600;
+    font-size: 28px;
+    margin: 10px 0 4px;
+    letter-spacing: 0.01em;
+  }
+  .subtitle {
+    color: var(--text-dim);
+    font-size: 13.5px;
+    margin: 0;
+    max-width: 680px;
+    line-height: 1.5;
+  }
+  nav.tabs {
+    display: flex;
+    gap: 2px;
+    padding: 0 24px;
+    border-bottom: 1px solid var(--line);
+    overflow-x: auto;
+  }
+  nav.tabs button {
+    font-family: var(--disp);
+    font-weight: 500;
+    font-size: 13.5px;
+    letter-spacing: 0.02em;
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    padding: 14px 16px 12px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: color .15s;
+  }
+  nav.tabs button:hover { color: var(--text); }
+  nav.tabs button.active {
+    color: var(--text);
+    border-bottom: 2px solid var(--red);
+  }
+  main {
+    flex: 1;
+    padding: 26px 24px 10px;
+    max-width: 920px;
+    width: 100%;
+    margin: 0 auto;
+  }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .grid {
+    display: grid;
+    grid-template-columns: minmax(0,1.1fr) minmax(0,1fr);
+    gap: 22px;
+    align-items: start;
+  }
+  @media (max-width: 680px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 20px;
+  }
+  .card + .card { margin-top: 16px; }
+  .card-title {
+    font-family: var(--disp);
+    font-size: 12.5px;
+    letter-spacing: 0.08em;
+    color: var(--text-faint);
+    margin: 0 0 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--line);
+  }
+  .field { margin-bottom: 14px; }
+  .field:last-child { margin-bottom: 0; }
+  label {
+    display: block;
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 5px;
+  }
+  .unit { color: var(--text-faint); font-size: 11px; }
+  input[type="number"], select {
+    width: 100%;
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 14px;
+    padding: 9px 10px;
+    border-radius: 3px;
+    outline: none;
+    transition: border-color .15s;
+  }
+  input[type="number"]:focus, select:focus {
+    border-color: var(--red);
+  }
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button { opacity: 0.4; }
+  .seg {
+    display: flex;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .seg button {
+    flex: 1;
+    background: var(--panel-2);
+    border: none;
+    color: var(--text-dim);
+    font-family: var(--mono);
+    font-size: 12.5px;
+    padding: 9px 6px;
+    cursor: pointer;
+    border-right: 1px solid var(--line);
+  }
+  .seg button:last-child { border-right: none; }
+  .seg button.active {
+    background: var(--red-dim);
+    color: var(--red-bright);
+  }
+  .result-card {
+    background: var(--panel-2);
+    border: 1px solid var(--line-strong);
+    border-radius: 4px;
+    padding: 20px;
+    position: relative;
+  }
+  .result-card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    width: 3px;
+    background: var(--red);
+  }
+  .result-title {
+    font-family: var(--disp);
+    font-size: 12.5px;
+    letter-spacing: 0.08em;
+    color: var(--text-faint);
+    margin: 0 0 14px;
+    padding-left: 10px;
+  }
+  .result-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 10px 10px;
+    border-bottom: 1px solid var(--line);
+  }
+  .result-row:last-child { border-bottom: none; }
+  .result-label { font-size: 12.5px; color: var(--text-dim); }
+  .result-value {
+    font-family: var(--mono);
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--red-bright);
+    text-align: right;
+  }
+  .result-value .u { font-size: 11px; color: var(--text-faint); font-weight: 400; margin-left: 4px; }
+  .note {
+    font-size: 11.5px;
+    color: var(--text-faint);
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+    line-height: 1.5;
+  }
+  footer {
+    position: fixed;
+    bottom: 12px;
+    right: 16px;
+    font-family: var(--disp);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: var(--text-faint);
+    background: var(--bg);
+    padding: 4px 10px;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    z-index: 5;
+  }
+  footer .mark { color: var(--red); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div class="rail"></div>
+
+<header>
+  <div class="brand-row">
+    <span class="brand-mark">ENG-TOOLKIT</span>
+  </div>
+  <h1>Toolkit de engenharia mecatrônica</h1>
+  <p class="subtitle">Calculadoras de mecânica, transmissão e elétrica básica — engrenagens, correias, rolamentos, motores, roscas, baterias e dimensionamento de circuitos — para uso rápido em projetos e portfólio.</p>
+</header>
+
+<nav class="tabs">
+  <button class="tab-btn active" data-tab="gears">Engrenagens</button>
+  <button class="tab-btn" data-tab="belts">Correias &amp; polias</button>
+  <button class="tab-btn" data-tab="bearings">Rolamentos</button>
+  <button class="tab-btn" data-tab="torque">Torque &amp; potência</button>
+  <button class="tab-btn" data-tab="motor">Seleção de motor</button>
+  <button class="tab-btn" data-tab="threephase">Motor trifásico</button>
+  <button class="tab-btn" data-tab="dcmotor">Motor CC</button>
+  <button class="tab-btn" data-tab="threads">Roscas &amp; fixação</button>
+  <button class="tab-btn" data-tab="battery">Bateria</button>
+  <button class="tab-btn" data-tab="breaker">Disjuntor &amp; cabo</button>
+  <button class="tab-btn" data-tab="elec">Conversores elétricos</button>
+</nav>
+
+<main>
+
+  <!-- GEARS -->
+  <section class="panel active" id="gears">
+    <div class="grid">
+      <div class="card">
+        <p class="card-title">DADOS DO TREM DE ENGRENAGENS</p>
+        <div class="field">
+          <label>Dentes da engrenagem motora (Z1)</label>
+          <input type="number" id="g_z1" value="18" min="1">
+        </div>
+        <div class="field">
+          <label>Dentes da engrenagem movida (Z2)</label>
+          <input type="number" id="g_z2" value="54" min="1">
+        </div>
+        <div class="field">
+          <label>Rotação de entrada (n1) <span class="unit">rpm</span></label>
+          <input type="number" id="g_n1" value="1750" min="0">
+        </div>
+        <div class="field">
+          <label>Torque de entrada (T1) <span class="unit">N·m</span></label>
+          <input type="number" id="g_t1" value="2.5" min="0" step="0.01">
+        </div>
+        <div class="field">
+          <label>Eficiência do engrenamento <span class="unit">%</span></label>
+          <input type="number" id="g_eff" value="96" min="1" max="100">
+        </div>
+      </div>
+      <div class="result-card">
+        <p class="result-title">RESULTADO</p>
+        <div class="result-row"><span class="result-label">Relação de transmissão (i)</span><span class="result-value" id="g_ratio">—</span></div>
+        <div class="result-row"><span class="result-label">Rotação de saída (n2)</span><span class="result-value" id="g_n2">—<span class="u">rpm</span></span></div>
+        <div class="result-row"><span class="result-label">Torque de saída (T2)</span><span class="result-value" id="g_t2">—<span class="u">N·m</span></span></div>
+        <div class="result-row"><span class="result-label">Tipo de trem</span><span class="result-value" id="g_type" style="font-size:13px">—</span></div>
+        <p class="note">i = Z2/Z1. Redutor quando i &gt; 1 (reduz rotação, aumenta torque); multiplicador quando i &lt; 1. T2 já considera a eficiência informada.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- BELTS & PULLEYS -->
+  <section class="panel" id="belts">
+    <div class="grid">
+      <div class="card">
+        <p class="card-title">DADOS DA TRANSMISSÃO POR CORREIA</p>
+        <div class="field">
+          <label>Diâmetro da polia motora (D1) <span class="unit">mm</span></label>
+          <input type="number" id="b_d1" value="60" min="1">
+        </div>
+        <div class="field">
+          <label>Diâmetro da polia movida (D2) <span class="unit">mm</span></label>
+          <input type="number" id="b_d2" value="180" min="1">
+        </div>
+        <div class="field">
+          <label>Rotação da polia motora (n1) <span class="unit">rpm</span></label>
+          <input type="number" id="b_n1" value="1750" min="0">
+        </div>
+        <div class="field">
+          <label>Torque de entrada (T1) <span class="unit">N·m</span></label>
+          <input type="number" id="b_t1" value="3" min="0" step="0.01">
+        </div>
+        <div class="field">
+          <label>Distância entre centros (C) <span class="unit">mm</span></label>
+          <input type="number" id="b_c" value="400" min="1">
+        </div>
+      </div>
+      <div class="result-card">
+        <p class="result-title">RESULTADO</p>
+        <div class="result-row"><span class="result-label">Relação de transmissão (i)</span><span class="result-value" id="b_ratio">—</span></div>
+        <div class="result-row"><span class="result-label">Rotação de saída (n2)</span><span class="result-value" id="b_n2">—<span class="u">rpm</span></span></div>
+        <div class="result-row"><span class="result-label">Torque de saída (T2)</span><span class="result-value" id="b_t2">—<span class="u">N·m</span></span></div>
+        <div class="result-row"><span class="result-label">Velocidade da correia</span><span class="result-value" id="b_v">—<span class="u">m/s</span></span></div>
+        <div class="result-row"><span class="result-label">Comprimento aprox. da correia</span><span class="result-value" id="b_l">—<span class="u">mm</span></span></div>
+        <p class="note">i = D2/D1. L ≈ 2C + π(D1+D2)/2 + (D2−D1)²/(4C) — estimativa para correia aberta, sem folga de tensionamento.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- BEARINGS -->
+  <section class="panel" id="bearings">
+    <div class="grid">
+      <div class="card">
+        <p class="card-title">DADOS DO ROLAMENTO</p>
+        <div class="field">
+          <label>Tipo de rolamento</label>
+          <div class="seg">
+            <button class="seg-btn active" data-brg="ball">Esferas (p=3)</button>
+            <button class="seg-btn" data-brg="roller">Rolos (p=10/3)</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Carga dinâmica equivalente (P) <span class="unit">N</span></label>
+          <input type="number" id="brg_p" value="2000" min="0">
+        </div>
+        <div class="field">
+          <label>Capacidade de carga dinâmica do catálogo (C) <span class="unit">N</span></label>
+          <input type="number" id="brg_c" value="15000" min="0">
+        </div>
+        <div class="field">
+          <label>Rotação de operação (n) <span class="unit">rpm</span></label>
+          <input type="number" id="brg_n" value="1500" min="0.1">
+        </div>
+      </div>
+      <div class="result-card">
+        <p class="result-title">VIDA ÚTIL (L10)</p>
+        <div class="result-row"><span class="result-label">Vida em milhões de rotações</span><span class="result-value" id="brg_l10m">—<span class="u">10⁶ rot</span></span></div>
+        <div class="result-row"><span class="result-label">Vida em horas</span><span class="result-value" id="brg_l10h">—<span class="u">h</span></span></div>
+        <div class="result-row"><span class="result-label">Vida em dias (8h/dia)</span><span class="result-value" id="brg_l10d">—<span class="u">dias</span></span></div>
+        <p class="note">L10 (10⁶ rot) = (C/P)^p. L10h = 10⁶ / (60·n) × (C/P)^p. p = 3 para rolamentos de esferas, 10/3 para rolamentos de rolos.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TORQUE / POWER -->
+  <section class="panel" id="torque">
+    <div class="grid">
+      <div class="card">
+        <p class="card-title">MODO DE CÁLCULO</p>
+        <div class="field">
+          <div class="seg">
+            <button class="seg-btn active" data-mode="tp_torque">Calcular torque</button>
+            <button class="seg-btn" data-mode="tp_power">Calcular potência</button>
+          </div>
+        </div>
+        <div class="field" id="tp_power_field">
+          <label>Potência <span class="unit">W</span></label>
+          <input type="number" id="tp_p" value="750" min="0">
+        </div>
+        <div class="field" id="tp_torque_field" style="display:none">
+          <label>Torque <span class="unit">N·m</span></label>
+          <input type="number" id="tp_t" value="4" min="0" step="0.01">
+        </div>
+        <div class="field">
+          <label>Rotação <span class="unit">rpm</span></label>
+          <input type="number" id="tp_n" value="1800" min="0.01" step="1">
+        </div>
+      </div>
+      <div class="result-card">
+        <p class="result-title">RESULTADO</p>
+        <div class="result-row"><span class="result-label">Torque</span><span class="result-value" id="tp_out_t">—<span class="u">N·m</span></span></div>
+        <div class="result-row"><span class="result-label">Potência</span><span class="result-value" id="tp_out_p">—<span class="u">W</span></span></div>
+        <div class="result-row"><span class="result-label">Potência</span><span class="result-value" id="tp_out_cv">—<span class="u">cv</span></span></div>
+        <p class="note">T (N·m) = P (W) × 9,5493 / n (rpm). Fórmula ideal, sem perdas mecânicas — aplique a eficiência do sistema separadamente se necessário.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- MOTOR SELECTION -->
+  <section class="panel" id="motor">
+    <div class="grid">
+      <div class="card">
+        <p class="card-title">TIPO DE MOVIMENTO DA CARGA</p>
+        <div class="field">
+          <div class="seg">
+            <button class="seg-btn active" data-motion="rot">Rotativo</button>
+            <button class="seg-btn" data-motion="lin">Linear</button>
+          </div>
+        </div>
+
+        <div id="motor_rot">
+          <div class="field">
+            <label>Torque resistente da carga <span class="unit">N·m</span></label>
+            <input type="number" id="m_torque" value="6" min="0" step="0.01">
+          </div>
+          <div class="field">
+            <label>Rotação de operação <span class="unit">rpm</span></label>
+            <input type="number" id="m_rpm" value="1200" min="0.01">
+          </div>
+        </div>
+
+        <div id="motor_lin" style="display:none">
+          <div class="field">
+            <label>Força resistente <span class="unit">N</span></label>
+            <input type="number" id="m_force" value="80" min="0" step="0.1">
+          </div>
+          <div class="field">
+            <label>Velocidade linear <span class="unit">m/s</span></label>
+            <input type="number" id="m_vel" value="0.3" min="0.001" step="0.01">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Eficiência da transmissão <span class="unit">%</span></label>
+          <input type="number" id="m_eff" value="90" min="1" max="100">
+        </div>
+        <div class="field">
+          <label>Fator de serviço / segurança</label>
+          <input type="number" id="m_fs" value="1.25" min="1" step="0.05">
+        </div>
+      </div>
+      <div class="result-card">
+        <p class="result-title">MOTOR NECESSÁRIO</p>
+        <div class="result-row"><span class="result-label">Potência mecânica da carga</span><span class="result-value" id="m_pload">—<span class="u">W</span></span></div>
+        <div class="result-row"><span class="result-label">Potência no eixo do motor</span><span class="result-value" id="m_pmotor">—<span class="u">W</span></span></div>
+        <div class="result-row"><span class="result-label">Potência mínima recomendada</span><span class="result-value" id="m_pfinal">—<span class="u">W</span></span></div>
+        <div class="result-row"><span class="result-label">Equivalente em cv</span><span class="result-value" id="m_cv">—<span class="u">cv</span></span></div>
+        <p class="note">Potência no eixo = potência da carga / eficiência. Potência recomendada = potência no eixo × fator de serviço. Use o cv/kW comercial imediatamente acima do valor recomendado.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- THREE-PHASE MOTOR -->
+  <section class="panel" id="threephase">
+    <div class="grid">
+      <div class="card">
+        <p class="card-title">MODO DE CÁLCULO</p>
+        <div class="field">
+          <div class="seg">
+            <button class="seg-btn active" data-mode3f="current">Corrente nominal</button>
+            <button class="seg-btn" data-mode3f="speed">Velocidade e escorregamento</button>
+          </div>
+        </div>
+
+        <div id="tf_current">
+          <div class="field">
+            <label>Potência nominal do motor <span class="unit">kW</span></label>
+            <input type="number" id="tf_p" value="5.5" min="0" step="0.01">
+          </div>
+          <div class="field">
+            <label>Tensão de linha <span class="unit">V</span></label>
+            <input type="number" id="tf_v" value="380" min="1">
+          </div>
+          <div class="field">
+            <label>Fator de potência (cos φ)</label>
+            <input type="number" id="tf_fp" value="0.86" min="0.1" max="1" step="0.01">
+          </div>
+          <div class="field">
+            <label>Eficiência <span class="unit">%</span></label>
+            <input type="number" id="tf_eff" value="90" min="1" max="100">
+          </div>
+          <div class="field">
+            <label>Múltiplo da corrente de partida (Ip/In)</label>
+            <input type="number" id="tf_ip" value="7" min="1" step="0.1">
+          </div>
+        </div>
+
+        <div id="tf_speed" style="display:none">
+          <div class="field">
+            <label>Frequência da rede <span class="unit">Hz</span></label>
+            <input type="number" id="tf_freq" value="60" min="1">
+          </div>
+          <div class="field">
+            <label>Número de polos</label>
+            <input type="number" id="tf_poles" value="4" min="2" step="2">
+          </div>
+          <div class="field">
+            <label>Rotação nominal de placa <span class="unit">rpm</span></label>
+            <input type="number" id="tf_nr" value="1750" min="0">
+          </div>
+        </div>
+      </div>
+      <div class="result-card">
+        <p class="result-title" id="tf_result_title">RESULTADO — CORRENTE NOMINAL</p>
+        <div id="tf_result_current">
+          <div class="result-row"><span class="result-label">Corrente nominal (In)</span><span class="result-value" id="tf_in">—<span class="u">A</span></span></div>
+          <div class="result-row"><span class="result-label">Corrente de partida estimada (Ip)</span><span class="result-value" id="tf_ipa">—<span class="u">A</span></span></div>
+          <p class="note">Trifásico: In = P(W) / (√3 × V × cos φ × η). Ligação estrela ou triângulo já está embutida na tensão de linha informada; verifique a placa do motor para o multiplicador real de Ip/In.</p>
+        </div>
+        <div id="tf_result_speed" style="display:none">
+          <div class="result-row"><span class="result-label">Velocidade síncrona (Ns)</span><span class="result-value" id="tf_ns">—<span class="u">rpm</span></span></div>
+          <div class="result-row"><span class="result-label">Escorregamento (s)</span><span class="result-value" id="tf_slip">—<span class="u">%</span></span></div>
+          <p class="note">Ns = 120 × f / número de polos. Escorregamento s = (Ns − Nr) / Ns. Motores de indução típicos operam com s entre 2% e 6% em carga nominal.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DC MOTOR -->
+  <section class="panel" id="dcmotor">
+    <div class="grid">
+      <div class="card">
+        <p class="card-title">DADOS DO MOTOR CC</p>
+        <div class="field">
+          <label>Tensão de alimentação (V) <span class="unit">V</span></label>
+          <input type="number" id="dc_v" value="24" min="0" step="0.1">
+        </div>
+        <div class="field">
+          <label>Resistência de armadura (Ra) <span class="unit">Ω</span></label>
+          <input type="number" id="dc_ra" value="1.2" min="0" step="0.01">
+        </div>
+        <div class="field">
+          <label>Constante Kt = Ke <span class="unit">N·m/A = V/(rad/s)</span></label>
+          <input type="number" id="dc_k" value="0.05" min="0.0001" step="0.001">
+        </div>
+        <div class="field">
+          <label>Torque de carga <span class="unit">N·m</span></label>
+          <input type="number" id="dc_t" value="0.3" min="0" step="0.01">
+        </div>
+      </div>
+      <div class="result-card">
+        <p class="result-title">RESULTADO</p>
+        <div class="result-row"><span class="result-label">Corrente de armadura (I)</span><span class="result-value" id="dc_i">—<span class="u">A</span></span></div>
+        <div class="result-row"><span class="result-label">Tensão induzida (fcem)</span><span class="result-value" id="dc_ea">—<span class="u">V</span></span></div>
+        <div class="result-row"><span class="result-label">Rotação (n)</span><span class="result-value" id="dc_n">—<span class="u">rpm</span></span></div>
+        <div class="result-row"><span class="result-label">Potência mecânica</span><span class="result-value" id="dc_pmec">—<span class="u">W</span></span></div>
+        <div class="result-row"><span class="result-label">Potência elétrica</span><span class="result-value" id="dc_pel">—<span class="u">W</span></span></div>
+        <div class="result-row"><span class="result-label">Eficiência</span><span class="result-value" id="dc_ef">—<span class="u">%</span></span></div>
+        <p class="note" id="dc_note">I = T/Kt. Ea = V − I·Ra. ω = Ea/Ke. n = ω × 60/(2π). Modelo simplificado, sem atrito nem perdas no núcleo.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- THREADS -->
+  <section class="panel" id="threads">
+    <div class="grid">
+      <div class="card">
+        <p class="card-title">MODO DE CÁLCULO</p>
+        <div class="field">
+          <div class="seg">
+            <button class="seg-btn active" data-modeth="bolt">Torque de aperto</button>
+            <button class="seg-btn" data-modeth="screw">Parafuso de potência (fuso)</button>
+          </div>
+        </div>
+
+        <div id="th_bolt">
+          <div class="field">
+            <label>Diâmetro nominal do parafuso <span class="unit">mm</span></label>
+            <input type="number" id="th_d" value="8" min="0.1" step="0.1">
+          </div>
+          <div class="field">
+            <label>Pré-carga (força de aperto) desejada <span class="unit">N</span></label>
+            <input type="number" id="th_f" value="5000" min="0">
+          </div>
+          <div class="field">
+            <label>Coeficiente de atrito (K)</label>
+            <input type="number" id="th_k" value="0.2" min="0.05" max="0.5" step="0.01">
+          </div>
+        </div>
+
+        <div id="th_screw" style="display:none">
+          <div class="field">
+            <label>Diâmetro médio do fuso (dm) <span class="unit">mm</span></label>
+            <input type="number" id="th_dm" value="20" min="0.1" step="0.1">
+          </div>
+          <div class="field">
+            <label>Passo/avanço por volta (L) <span class="unit">mm</span></label>
+            <input type="number" id="th_l" value="4" min="0.01" step="0.1">
+          </div>
+          <div class="field">
+            <label>Coeficiente de atrito (μ)</label>
+            <input type="number" id="th_mu" value="0.15" min="0.01" max="0.6" step="0.01">
+          </div>
+          <div class="field">
+            <label>Carga axial a elevar (F) <span class="unit">N</span></label>
+            <input type="number" id="th_fax" value="2000" min="0">
+          </div>
+        </div>
+      </div>
+      <div class="result-card">
+        <p class="result-title" id="th_result_title">RESULTADO — TORQUE DE APERTO</p>
+        <div id="th_result_bolt">
+          <div class="result-row"><span class="result-label">Torque de aperto recomendado</span><span class="result-value" id="th_tbolt">—<span class="u">N·m</span></span></div>
+          <p class="note">T = K × F × d. K típico: 0,15–0,20 lubrificado, 0,20–0,30 seco. Válido como estimativa geral — consulte a norma ou o fabricante para valores críticos.</p>
+        </div>
+        <div id="th_result_screw" style="display:none">
+          <div class="result-row"><span class="result-label">Torque necessário para elevar a carga</span><span class="result-value" id="th_tscrew">—<span class="u">N·m</span></span></div>
+          <div class="result-row"><span class="result-label">Eficiência do fuso</span><span class="result-value" id="th_ethscrew">—<span class="u">%</span></span></div>
+          <div class="result-row"><span class="result-label">Autotravante?</span><span class="result-value" id="th_selflock" style="font-size:13px">—</span></div>
+          <p class="note">Modelo de rosca quadrada, sem atrito no colar de apoio. T = F·dm/2 · (L + π·μ·dm)/(π·dm − μ·L). Autotravante quando π·μ·dm &gt; L (a carga não desce sozinha ao soltar o torque).</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BATTERY -->
+  <section class="panel" id="battery">
+    <div class="grid">
+      <div class="card">
+        <p class="card-title">DADOS DA BATERIA</p>
+        <div class="field">
+          <label>Capacidade da bateria <span class="unit">Ah</span></label>
+          <input type="number" id="bt_ah" value="20" min="0" step="0.1">
+        </div>
+        <div class="field">
+          <label>Tensão nominal <span class="unit">V</span></label>
+          <input type="number" id="bt_v" value="12" min="0" step="0.1">
+        </div>
+        <div class="field">
+          <label>Corrente de consumo da carga <span class="unit">A</span></label>
+          <input type="number" id="bt_i" value="2" min="0.001" step="0.01">
+        </div>
+        <div class="field">
+          <label>Profundidade de descarga admissível (DoD) <span class="unit">%</span></label>
+          <input type="number" id="bt_dod" value="80" min="1" max="100">
+        </div>
+      </div>
+      <div class="result-card">
+        <p class="result-title">AUTONOMIA</p>
+        <div class="result-row"><span class="result-label">Energia total armazenada</span><span class="result-value" id="bt_whtotal">—<span class="u">Wh</span></span></div>
+        <div class="result-row"><span class="result-label">Energia utilizável (com DoD)</span><span class="result-value" id="bt_whuse">—<span class="u">Wh</span></span></div>
+        <div class="result-row"><span class="result-label">Autonomia estimada</span><span class="result-value" id="bt_hours">—<span class="u">h</span></span></div>
+        <div class="result-row"><span class="result-label">Autonomia estimada</span><span class="result-value" id="bt_min">—<span class="u">min</span></span></div>
+        <p class="note">Autonomia (h) = Ah × DoD / (100 × corrente de consumo). Energia (Wh) = Ah × V. Não considera queda de tensão com a descarga nem eficiência do conversor/carga.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- BREAKER / CABLE -->
+  <section class="panel" id="breaker">
+    <div class="grid">
+      <div class="card">
+        <p class="card-title">DADOS DO CIRCUITO</p>
+        <div class="field">
+          <label>Tipo de circuito</label>
+          <div class="seg">
+            <button class="seg-btn active" data-circ="mono">Monofásico</button>
+            <button class="seg-btn" data-circ="tri">Trifásico</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Corrente de projeto <span class="unit">A</span></label>
+          <input type="number" id="br_i" value="16" min="0" step="0.1">
+        </div>
+        <div class="field">
+          <label>Tensão do circuito <span class="unit">V</span></label>
+          <input type="number" id="br_v" value="220" min="1">
+        </div>
+        <div class="field">
+          <label>Comprimento do cabo (só ida) <span class="unit">m</span></label>
+          <input type="number" id="br_l" value="20" min="0.1">
+        </div>
+        <div class="field">
+          <label>Queda de tensão máx. admissível <span class="unit">%</span></label>
+          <input type="number" id="br_dv" value="4" min="0.5" max="10" step="0.1">
+        </div>
+      </div>
+      <div class="result-card">
+        <p class="result-title">RESULTADO</p>
+        <div class="result-row"><span class="result-label">Disjuntor comercial recomendado</span><span class="result-value" id="br_breaker">—<span class="u">A</span></span></div>
+        <div class="result-row"><span class="result-label">Seção mínima calculada</span><span class="result-value" id="br_scalc">—<span class="u">mm²</span></span></div>
+        <div class="result-row"><span class="result-label">Seção comercial recomendada</span><span class="result-value" id="br_scomm">—<span class="u">mm²</span></span></div>
+        <p class="note">Seção pela queda de tensão: S = k·ρ·L·I/ΔV (ρ do cobre = 0,0178 Ω·mm²/m; k = 2 monofásico, √3 trifásico). Verifique também a corrente admissível do cabo pela NBR 5410 conforme o método de instalação — o maior valor entre os dois critérios deve ser usado.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ELECTRICAL CONVERTERS -->
+  <section class="panel" id="elec">
+    <div class="grid">
+      <div class="card">
+        <p class="card-title">MODO</p>
+        <div class="field">
+          <div class="seg">
+            <button class="seg-btn active" data-modeel="power">Potência ativa/reativa/aparente</button>
+            <button class="seg-btn" data-modeel="units">Conversor de unidades</button>
+          </div>
+        </div>
+
+        <div id="el_power">
+          <div class="field">
+            <label>Potência ativa (P) <span class="unit">W</span></label>
+            <input type="number" id="el_pw" value="1000" min="0">
+          </div>
+          <div class="field">
+            <label>Fator de potência (cos φ)</label>
+            <input type="number" id="el_fp" value="0.85" min="0.01" max="1" step="0.01">
+          </div>
+        </div>
+
+        <div id="el_units" style="display:none">
+          <div class="field">
+            <label>Categoria</label>
+            <select id="el_cat">
+              <option value="tensao">Tensão</option>
+              <option value="corrente">Corrente</option>
+              <option value="potencia">Potência</option>
+              <option value="resistencia">Resistência</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Valor de entrada</label>
+            <input type="number" id="el_val" value="1" step="any">
+          </div>
+          <div class="field">
+            <label>Unidade de entrada</label>
+            <select id="el_unit"></select>
+          </div>
+        </div>
+      </div>
+      <div class="result-card">
+        <p class="result-title" id="el_result_title">RESULTADO — POTÊNCIA</p>
+        <div id="el_result_power">
+          <div class="result-row"><span class="result-label">Potência aparente (S)</span><span class="result-value" id="el_s">—<span class="u">VA</span></span></div>
+          <div class="result-row"><span class="result-label">Potência reativa (Q)</span><span class="result-value" id="el_q">—<span class="u">VAR</span></span></div>
+          <div class="result-row"><span class="result-label">Ângulo φ</span><span class="result-value" id="el_ang">—<span class="u">°</span></span></div>
+          <p class="note">S = P / cos φ. Q = √(S² − P²). φ = arccos(cos φ).</p>
+        </div>
+        <div id="el_result_units" style="display:none">
+          <div id="el_units_rows"></div>
+          <p class="note">Conversões calculadas a partir do valor base em unidade padrão (V, A, W ou Ω).</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>Feito por: <span class="mark">Thiagosystems</span></footer>
+
+<script>
+  function fmt(n, d=2) {
+    if (!isFinite(n)) return '—';
+    return n.toLocaleString('pt-BR', { minimumFractionDigits: d, maximumFractionDigits: d });
+  }
+  function fmtSmart(n) {
+    if (!isFinite(n)) return '—';
+    const abs = Math.abs(n);
+    if (abs >= 1000) return n.toLocaleString('pt-BR', { maximumFractionDigits: 2 });
+    if (abs >= 1) return n.toLocaleString('pt-BR', { maximumFractionDigits: 4 });
+    return n.toLocaleString('pt-BR', { maximumFractionDigits: 6 });
+  }
+
+  // Tab switching
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  // ---- Gears ----
+  function calcGears() {
+    const z1 = parseFloat(document.getElementById('g_z1').value);
+    const z2 = parseFloat(document.getElementById('g_z2').value);
+    const n1 = parseFloat(document.getElementById('g_n1').value);
+    const t1 = parseFloat(document.getElementById('g_t1').value);
+    const eff = parseFloat(document.getElementById('g_eff').value) / 100;
+
+    if (!z1 || !z2 || z1 <= 0 || z2 <= 0) {
+      document.getElementById('g_ratio').textContent = '—';
+      document.getElementById('g_n2').innerHTML = '—<span class="u">rpm</span>';
+      document.getElementById('g_t2').innerHTML = '—<span class="u">N·m</span>';
+      document.getElementById('g_type').textContent = '—';
+      return;
+    }
+    const ratio = z2 / z1;
+    const n2 = n1 / ratio;
+    const t2 = t1 * ratio * (isFinite(eff) && eff > 0 ? eff : 1);
+    document.getElementById('g_ratio').textContent = fmt(ratio, 3) + ' : 1';
+    document.getElementById('g_n2').innerHTML = fmt(n2, 1) + '<span class="u">rpm</span>';
+    document.getElementById('g_t2').innerHTML = fmt(t2, 3) + '<span class="u">N·m</span>';
+    document.getElementById('g_type').textContent = ratio > 1 ? 'Redutor de velocidade' : (ratio < 1 ? 'Multiplicador de velocidade' : 'Relação 1:1');
+  }
+  ['g_z1','g_z2','g_n1','g_t1','g_eff'].forEach(id => document.getElementById(id).addEventListener('input', calcGears));
+
+  // ---- Belts & pulleys ----
+  function calcBelts() {
+    const d1 = parseFloat(document.getElementById('b_d1').value);
+    const d2 = parseFloat(document.getElementById('b_d2').value);
+    const n1 = parseFloat(document.getElementById('b_n1').value);
+    const t1 = parseFloat(document.getElementById('b_t1').value);
+    const c = parseFloat(document.getElementById('b_c').value);
+
+    const ratio = d2 / d1;
+    const n2 = n1 / ratio;
+    const t2 = t1 * ratio;
+    const v = Math.PI * d1 * n1 / 60000;
+    const l = 2 * c + (Math.PI * (d1 + d2)) / 2 + Math.pow(d2 - d1, 2) / (4 * c);
+
+    document.getElementById('b_ratio').textContent = fmt(ratio, 3) + ' : 1';
+    document.getElementById('b_n2').innerHTML = fmt(n2, 1) + '<span class="u">rpm</span>';
+    document.getElementById('b_t2').innerHTML = fmt(t2, 3) + '<span class="u">N·m</span>';
+    document.getElementById('b_v').innerHTML = fmt(v, 2) + '<span class="u">m/s</span>';
+    document.getElementById('b_l').innerHTML = fmt(l, 1) + '<span class="u">mm</span>';
+  }
+  ['b_d1','b_d2','b_n1','b_t1','b_c'].forEach(id => document.getElementById(id).addEventListener('input', calcBelts));
+
+  // ---- Bearings ----
+  let brgType = 'ball';
+  document.querySelectorAll('#bearings .seg-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#bearings .seg-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      brgType = btn.dataset.brg;
+      calcBearings();
+    });
+  });
+  function calcBearings() {
+    const p = parseFloat(document.getElementById('brg_p').value);
+    const c = parseFloat(document.getElementById('brg_c').value);
+    const n = parseFloat(document.getElementById('brg_n').value);
+    const exp = brgType === 'ball' ? 3 : (10 / 3);
+    const l10m = Math.pow(c / p, exp);
+    const l10h = (1000000 / (60 * n)) * l10m;
+    const l10d = l10h / 8;
+    document.getElementById('brg_l10m').innerHTML = fmt(l10m, 2) + '<span class="u">10⁶ rot</span>';
+    document.getElementById('brg_l10h').innerHTML = fmt(l10h, 0) + '<span class="u">h</span>';
+    document.getElementById('brg_l10d').innerHTML = fmt(l10d, 0) + '<span class="u">dias</span>';
+  }
+  ['brg_p','brg_c','brg_n'].forEach(id => document.getElementById(id).addEventListener('input', calcBearings));
+
+  // ---- Torque / Power ----
+  let tpMode = 'tp_torque';
+  document.querySelectorAll('#torque .seg-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#torque .seg-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      tpMode = btn.dataset.mode;
+      document.getElementById('tp_power_field').style.display = tpMode === 'tp_torque' ? 'block' : 'none';
+      document.getElementById('tp_torque_field').style.display = tpMode === 'tp_power' ? 'block' : 'none';
+      calcTorquePower();
+    });
+  });
+  function calcTorquePower() {
+    const n = parseFloat(document.getElementById('tp_n').value);
+    let p, t;
+    if (tpMode === 'tp_torque') {
+      p = parseFloat(document.getElementById('tp_p').value);
+      t = p * 9.5493 / n;
+    } else {
+      t = parseFloat(document.getElementById('tp_t').value);
+      p = t * n / 9.5493;
+    }
+    document.getElementById('tp_out_t').innerHTML = fmt(t, 3) + '<span class="u">N·m</span>';
+    document.getElementById('tp_out_p').innerHTML = fmt(p, 1) + '<span class="u">W</span>';
+    document.getElementById('tp_out_cv').innerHTML = fmt(p / 735.5, 3) + '<span class="u">cv</span>';
+  }
+  ['tp_p','tp_t','tp_n'].forEach(id => document.getElementById(id).addEventListener('input', calcTorquePower));
+
+  // ---- Motor selection ----
+  let motorMode = 'rot';
+  document.querySelectorAll('#motor .seg-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#motor .seg-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      motorMode = btn.dataset.motion;
+      document.getElementById('motor_rot').style.display = motorMode === 'rot' ? 'block' : 'none';
+      document.getElementById('motor_lin').style.display = motorMode === 'lin' ? 'block' : 'none';
+      calcMotor();
+    });
+  });
+  function calcMotor() {
+    const eff = parseFloat(document.getElementById('m_eff').value) / 100;
+    const fs = parseFloat(document.getElementById('m_fs').value);
+    let pLoad;
+    if (motorMode === 'rot') {
+      const torque = parseFloat(document.getElementById('m_torque').value);
+      const rpm = parseFloat(document.getElementById('m_rpm').value);
+      pLoad = torque * rpm / 9.5493;
+    } else {
+      const force = parseFloat(document.getElementById('m_force').value);
+      const vel = parseFloat(document.getElementById('m_vel').value);
+      pLoad = force * vel;
+    }
+    const pMotor = pLoad / (isFinite(eff) && eff > 0 ? eff : 1);
+    const pFinal = pMotor * (isFinite(fs) && fs > 0 ? fs : 1);
+    document.getElementById('m_pload').innerHTML = fmt(pLoad, 1) + '<span class="u">W</span>';
+    document.getElementById('m_pmotor').innerHTML = fmt(pMotor, 1) + '<span class="u">W</span>';
+    document.getElementById('m_pfinal').innerHTML = fmt(pFinal, 1) + '<span class="u">W</span>';
+    document.getElementById('m_cv').innerHTML = fmt(pFinal / 735.5, 3) + '<span class="u">cv</span>';
+  }
+  ['m_torque','m_rpm','m_force','m_vel','m_eff','m_fs'].forEach(id => document.getElementById(id).addEventListener('input', calcMotor));
+
+  // ---- Three-phase motor ----
+  let tfMode = 'current';
+  document.querySelectorAll('#threephase .seg-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#threephase .seg-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      tfMode = btn.dataset.mode3f;
+      const isCurrent = tfMode === 'current';
+      document.getElementById('tf_current').style.display = isCurrent ? 'block' : 'none';
+      document.getElementById('tf_speed').style.display = isCurrent ? 'none' : 'block';
+      document.getElementById('tf_result_current').style.display = isCurrent ? 'block' : 'none';
+      document.getElementById('tf_result_speed').style.display = isCurrent ? 'none' : 'block';
+      document.getElementById('tf_result_title').textContent = isCurrent ? 'RESULTADO — CORRENTE NOMINAL' : 'RESULTADO — VELOCIDADE E ESCORREGAMENTO';
+      calcThreePhase();
+    });
+  });
+  function calcThreePhase() {
+    if (tfMode === 'current') {
+      const pkw = parseFloat(document.getElementById('tf_p').value);
+      const v = parseFloat(document.getElementById('tf_v').value);
+      const fp = parseFloat(document.getElementById('tf_fp').value);
+      const eff = parseFloat(document.getElementById('tf_eff').value) / 100;
+      const ipMult = parseFloat(document.getElementById('tf_ip').value);
+      const pw = pkw * 1000;
+      const inCurrent = pw / (Math.sqrt(3) * v * fp * (eff > 0 ? eff : 1));
+      document.getElementById('tf_in').innerHTML = fmt(inCurrent, 2) + '<span class="u">A</span>';
+      document.getElementById('tf_ipa').innerHTML = fmt(inCurrent * ipMult, 1) + '<span class="u">A</span>';
+    } else {
+      const freq = parseFloat(document.getElementById('tf_freq').value);
+      const poles = parseFloat(document.getElementById('tf_poles').value);
+      const nr = parseFloat(document.getElementById('tf_nr').value);
+      const ns = 120 * freq / poles;
+      const slip = (ns - nr) / ns * 100;
+      document.getElementById('tf_ns').innerHTML = fmt(ns, 0) + '<span class="u">rpm</span>';
+      document.getElementById('tf_slip').innerHTML = fmt(slip, 2) + '<span class="u">%</span>';
+    }
+  }
+  ['tf_p','tf_v','tf_fp','tf_eff','tf_ip','tf_freq','tf_poles','tf_nr'].forEach(id => document.getElementById(id).addEventListener('input', calcThreePhase));
+
+  // ---- DC motor ----
+  function calcDcMotor() {
+    const v = parseFloat(document.getElementById('dc_v').value);
+    const ra = parseFloat(document.getElementById('dc_ra').value);
+    const k = parseFloat(document.getElementById('dc_k').value);
+    const t = parseFloat(document.getElementById('dc_t').value);
+
+    const i = t / k;
+    const ea = v - i * ra;
+    const omega = ea / k;
+    const n = omega * 60 / (2 * Math.PI);
+    const pmec = t * omega;
+    const pel = v * i;
+    const efic = pel > 0 ? (pmec / pel) * 100 : 0;
+
+    document.getElementById('dc_i').innerHTML = fmt(i, 2) + '<span class="u">A</span>';
+    document.getElementById('dc_ea').innerHTML = fmt(ea, 2) + '<span class="u">V</span>';
+    document.getElementById('dc_n').innerHTML = fmt(n, 0) + '<span class="u">rpm</span>';
+    document.getElementById('dc_pmec').innerHTML = fmt(pmec, 1) + '<span class="u">W</span>';
+    document.getElementById('dc_pel').innerHTML = fmt(pel, 1) + '<span class="u">W</span>';
+    document.getElementById('dc_ef').innerHTML = fmt(efic, 1) + '<span class="u">%</span>';
+
+    const noteEl = document.getElementById('dc_note');
+    if (ea < 0) {
+      noteEl.innerHTML = '<span style="color:var(--red-bright)">Atenção: a corrente exigida pelo torque de carga é maior do que o motor sustenta nessa tensão — o motor tende a travar (rotor bloqueado).</span> Reduza o torque de carga ou aumente a tensão.';
+    } else {
+      noteEl.textContent = 'I = T/Kt. Ea = V − I·Ra. ω = Ea/Ke. n = ω × 60/(2π). Modelo simplificado, sem atrito nem perdas no núcleo.';
+    }
+  }
+  ['dc_v','dc_ra','dc_k','dc_t'].forEach(id => document.getElementById(id).addEventListener('input', calcDcMotor));
+
+  // ---- Threads ----
+  let thMode = 'bolt';
+  document.querySelectorAll('#threads .seg-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#threads .seg-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      thMode = btn.dataset.modeth;
+      const isBolt = thMode === 'bolt';
+      document.getElementById('th_bolt').style.display = isBolt ? 'block' : 'none';
+      document.getElementById('th_screw').style.display = isBolt ? 'none' : 'block';
+      document.getElementById('th_result_bolt').style.display = isBolt ? 'block' : 'none';
+      document.getElementById('th_result_screw').style.display = isBolt ? 'none' : 'block';
+      document.getElementById('th_result_title').textContent = isBolt ? 'RESULTADO — TORQUE DE APERTO' : 'RESULTADO — PARAFUSO DE POTÊNCIA';
+      calcThreads();
+    });
+  });
+  function calcThreads() {
+    if (thMode === 'bolt') {
+      const d = parseFloat(document.getElementById('th_d').value) / 1000;
+      const f = parseFloat(document.getElementById('th_f').value);
+      const k = parseFloat(document.getElementById('th_k').value);
+      const t = k * f * d;
+      document.getElementById('th_tbolt').innerHTML = fmt(t, 3) + '<span class="u">N·m</span>';
+    } else {
+      const dm = parseFloat(document.getElementById('th_dm').value);
+      const l = parseFloat(document.getElementById('th_l').value);
+      const mu = parseFloat(document.getElementById('th_mu').value);
+      const f = parseFloat(document.getElementById('th_fax').value);
+      const denom = Math.PI * dm - mu * l;
+      const tNmm = f * dm / 2 * (l + Math.PI * mu * dm) / denom;
+      const tNm = tNmm / 1000;
+      const etaScrew = (f * l) / (2 * Math.PI * tNmm) * 100;
+      const selfLocking = (Math.PI * mu * dm) > l;
+      document.getElementById('th_tscrew').innerHTML = fmt(tNm, 3) + '<span class="u">N·m</span>';
+      document.getElementById('th_ethscrew').innerHTML = fmt(etaScrew, 1) + '<span class="u">%</span>';
+      document.getElementById('th_selflock').textContent = selfLocking ? 'Sim' : 'Não';
+    }
+  }
+  ['th_d','th_f','th_k','th_dm','th_l','th_mu','th_fax'].forEach(id => document.getElementById(id).addEventListener('input', calcThreads));
+
+  // ---- Battery ----
+  function calcBattery() {
+    const ah = parseFloat(document.getElementById('bt_ah').value);
+    const v = parseFloat(document.getElementById('bt_v').value);
+    const i = parseFloat(document.getElementById('bt_i').value);
+    const dod = parseFloat(document.getElementById('bt_dod').value) / 100;
+
+    const whTotal = ah * v;
+    const whUse = whTotal * dod;
+    const hours = (ah * dod) / i;
+    const minutes = hours * 60;
+
+    document.getElementById('bt_whtotal').innerHTML = fmt(whTotal, 1) + '<span class="u">Wh</span>';
+    document.getElementById('bt_whuse').innerHTML = fmt(whUse, 1) + '<span class="u">Wh</span>';
+    document.getElementById('bt_hours').innerHTML = fmt(hours, 2) + '<span class="u">h</span>';
+    document.getElementById('bt_min').innerHTML = fmt(minutes, 0) + '<span class="u">min</span>';
+  }
+  ['bt_ah','bt_v','bt_i','bt_dod'].forEach(id => document.getElementById(id).addEventListener('input', calcBattery));
+
+  // ---- Breaker / cable ----
+  const breakerSteps = [6,10,16,20,25,32,40,50,63,70,80,100,125,150,175,200,225,250];
+  const cableSteps = [0.5,0.75,1,1.5,2.5,4,6,10,16,25,35,50,70,95,120,150,185,240];
+  let circType = 'mono';
+  document.querySelectorAll('#breaker .seg-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#breaker .seg-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      circType = btn.dataset.circ;
+      calcBreaker();
+    });
+  });
+  function nextStep(steps, value) {
+    for (const s of steps) { if (s >= value) return s; }
+    return steps[steps.length - 1];
+  }
+  function calcBreaker() {
+    const i = parseFloat(document.getElementById('br_i').value);
+    const v = parseFloat(document.getElementById('br_v').value);
+    const l = parseFloat(document.getElementById('br_l').value);
+    const dvPct = parseFloat(document.getElementById('br_dv').value);
+    const rho = 0.0178;
+    const k = circType === 'mono' ? 2 : Math.sqrt(3);
+
+    const dvVolts = v * dvPct / 100;
+    const sCalc = (k * rho * l * i) / dvVolts;
+    const sComm = nextStep(cableSteps, sCalc);
+    const breakerRec = nextStep(breakerSteps, i);
+
+    document.getElementById('br_breaker').innerHTML = fmt(breakerRec, 0) + '<span class="u">A</span>';
+    document.getElementById('br_scalc').innerHTML = fmt(sCalc, 2) + '<span class="u">mm²</span>';
+    document.getElementById('br_scomm').innerHTML = fmt(sComm, 2) + '<span class="u">mm²</span>';
+  }
+  ['br_i','br_v','br_l','br_dv'].forEach(id => document.getElementById(id).addEventListener('input', calcBreaker));
+
+  // ---- Electrical converters ----
+  let elMode = 'power';
+  document.querySelectorAll('#elec .seg-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#elec .seg-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      elMode = btn.dataset.modeel;
+      const isPower = elMode === 'power';
+      document.getElementById('el_power').style.display = isPower ? 'block' : 'none';
+      document.getElementById('el_units').style.display = isPower ? 'none' : 'block';
+      document.getElementById('el_result_power').style.display = isPower ? 'block' : 'none';
+      document.getElementById('el_result_units').style.display = isPower ? 'none' : 'block';
+      document.getElementById('el_result_title').textContent = isPower ? 'RESULTADO — POTÊNCIA' : 'RESULTADO — CONVERSÃO';
+      if (isPower) calcElPower(); else calcElUnits();
+    });
+  });
+  function calcElPower() {
+    const p = parseFloat(document.getElementById('el_pw').value);
+    const fp = parseFloat(document.getElementById('el_fp').value);
+    const s = p / fp;
+    const q = Math.sqrt(Math.max(s * s - p * p, 0));
+    const ang = Math.acos(fp) * 180 / Math.PI;
+    document.getElementById('el_s').innerHTML = fmt(s, 1) + '<span class="u">VA</span>';
+    document.getElementById('el_q').innerHTML = fmt(q, 1) + '<span class="u">VAR</span>';
+    document.getElementById('el_ang').innerHTML = fmt(ang, 1) + '<span class="u">°</span>';
+  }
+  ['el_pw','el_fp'].forEach(id => document.getElementById(id).addEventListener('input', calcElPower));
+
+  const unitCategories = {
+    tensao:      { base: 'V',  units: { 'mV': 0.001, 'V': 1, 'kV': 1000 } },
+    corrente:    { base: 'A',  units: { 'mA': 0.001, 'A': 1, 'kA': 1000 } },
+    potencia:    { base: 'W',  units: { 'W': 1, 'kW': 1000, 'MW': 1000000, 'cv': 735.5, 'HP': 745.7 } },
+    resistencia: { base: 'Ω',  units: { 'mΩ': 0.001, 'Ω': 1, 'kΩ': 1000, 'MΩ': 1000000 } }
+  };
+  function populateElUnits() {
+    const cat = document.getElementById('el_cat').value;
+    const sel = document.getElementById('el_unit');
+    sel.innerHTML = '';
+    Object.keys(unitCategories[cat].units).forEach(u => {
+      const opt = document.createElement('option');
+      opt.value = u;
+      opt.textContent = u;
+      if (u === unitCategories[cat].base) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  }
+  function calcElUnits() {
+    const cat = document.getElementById('el_cat').value;
+    const val = parseFloat(document.getElementById('el_val').value);
+    const unit = document.getElementById('el_unit').value;
+    const units = unitCategories[cat].units;
+    const baseValue = val * units[unit];
+    const rowsEl = document.getElementById('el_units_rows');
+    rowsEl.innerHTML = '';
+    Object.keys(units).forEach(u => {
+      const converted = baseValue / units[u];
+      const row = document.createElement('div');
+      row.className = 'result-row';
+      row.innerHTML = '<span class="result-label">' + u + '</span><span class="result-value">' + fmtSmart(converted) + '</span>';
+      rowsEl.appendChild(row);
+    });
+  }
+  document.getElementById('el_cat').addEventListener('change', () => { populateElUnits(); calcElUnits(); });
+  document.getElementById('el_val').addEventListener('input', calcElUnits);
+  document.getElementById('el_unit').addEventListener('change', calcElUnits);
+
+  // initial run
+  calcGears();
+  calcBelts();
+  calcBearings();
+  calcTorquePower();
+  calcMotor();
+  calcThreePhase();
+  calcDcMotor();
+  calcThreads();
+  calcBattery();
+  calcBreaker();
+  calcElPower();
+  populateElUnits();
+  calcElUnits();
+</script>
+
+</body>
+</html>
